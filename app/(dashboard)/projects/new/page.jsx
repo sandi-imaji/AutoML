@@ -63,8 +63,13 @@ export default function NewProjectPage() {
     dim_reduce: false
   })
 
+  // Store all available tags for "Select All" feature
+  const [lastSearchResults, setLastSearchResults] = useState([])
+  const [isAllSelected, setIsAllSelected] = useState(false)
+
   // Reset features & target when task_type changes
   useEffect(() => {
+    setIsAllSelected(false)
     if (formData.task_type === 'Clustering') {
       setFormData(prev => ({
         ...prev,
@@ -91,6 +96,10 @@ export default function NewProjectPage() {
   const handleTagSearch = useCallback(async (query) => {
     try {
       const results = await searchTags(query)
+      // Store the last search results for "Select All" functionality
+      if (results && results.length > 0) {
+        setLastSearchResults(results)
+      }
       return results
     } catch (error) {
       console.error('Search error:', error)
@@ -99,18 +108,55 @@ export default function NewProjectPage() {
     }
   }, [])
 
+  const handleSelectAllFeatures = () => {
+    if (lastSearchResults.length === 0) {
+      toast.info('Please search for tags first')
+      return
+    }
+    
+    // Merge with existing selected features to avoid duplicates
+    const existingIds = new Set(formData.features.map(f => f.row_id))
+    const newResults = lastSearchResults.filter(r => !existingIds.has(r.row_id))
+    const allSelected = [...formData.features, ...newResults]
+    
+    setIsAllSelected(true)
+    setFormData(prev => ({ ...prev, features: allSelected }))
+    toast.success(`Added ${newResults.length} features (Total: ${allSelected.length})`)
+  }
+
+  const handleClearAllFeatures = () => {
+    setIsAllSelected(false)
+    setLastSearchResults([])
+    setFormData(prev => ({ ...prev, features: [] }))
+  }
+
   const handleFeatureChange = (selectedTags) => {
     if (formData.task_type === 'TimeSeries' && Array.isArray(selectedTags) && selectedTags.length > 1) {
       // Time Series hanya boleh 1 feature
       selectedTags = selectedTags.slice(-1)
       toast.info('Time Series hanya boleh menggunakan 1 feature')
     }
+    
+    // Check if user manually selected all tags
+    if (selectedTags.length === 0) {
+      setIsAllSelected(false)
+    } else if (isAllSelected && selectedTags.length !== allAvailableTags.length) {
+      // User removed some tags after selecting all
+      setIsAllSelected(false)
+    }
+    
     setFormData(prev => ({ ...prev, features: selectedTags || [] }))
   }
 
   const handleTargetChange = (selectedTag) => {
     // Remove target from features if exists
     const newFeatures = formData.features.filter(f => f.row_id !== selectedTag?.row_id)
+    
+    // If user manually removes tags after selecting all, update isAllSelected
+    if (isAllSelected && newFeatures.length !== allAvailableTags.length) {
+      setIsAllSelected(false)
+    }
+    
     setFormData(prev => ({
       ...prev,
       target: selectedTag,
@@ -278,9 +324,40 @@ export default function NewProjectPage() {
                       }
                     </Label>
                     {formData.task_type !== 'TimeSeries' && (
-                      <span className="text-xs text-gray-600 dark:text-gray-400">
-                        {formData.features.length} selected
-                      </span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-gray-600 dark:text-gray-400">
+                          {isAllSelected 
+                            ? `All (${formData.features.length} tags selected)` 
+                            : `${formData.features.length} selected`
+                          }
+                        </span>
+                        <div className="flex items-center gap-1">
+                          {lastSearchResults.length > 0 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={handleSelectAllFeatures}
+                              disabled={loading}
+                              className="text-xs h-7 px-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            >
+                              Select All ({lastSearchResults.length})
+                            </Button>
+                          )}
+                          {formData.features.length > 0 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={handleClearAllFeatures}
+                              disabled={loading}
+                              className="text-xs h-7 px-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              Clear
+                            </Button>
+                          )}
+                        </div>
+                      </div>
                     )}
                   </div>
 
@@ -297,14 +374,16 @@ export default function NewProjectPage() {
                   )}
 
                   {(formData.task_type === 'Regression' || formData.task_type === 'Clustering') && (
-                    <LiveTagSearch
-                      value={formData.features}
-                      onChange={handleFeatureChange}
-                      onSearch={handleTagSearch}
-                      placeholder="Type min 3 chars to search (e.g., cra, pdu...)"
-                      multi={true}
-                      disabled={loading}
-                    />
+                    <div className="space-y-2">
+                      <LiveTagSearch
+                        value={formData.features}
+                        onChange={handleFeatureChange}
+                        onSearch={handleTagSearch}
+                        placeholder="Type min 3 chars to search (e.g., cra, pdu...)"
+                        multi={true}
+                        disabled={loading}
+                      />
+                    </div>
                   )}
 
                   {/* Info tambahan */}
@@ -504,7 +583,6 @@ export default function NewProjectPage() {
                         <SelectValue placeholder="Select method" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="NONE">NONE</SelectItem>
                         <SelectItem value="REMOVE">REMOVE</SelectItem>
                         <SelectItem value="MEAN">MEAN</SelectItem>
                         <SelectItem value="MEDIAN">MEDIAN</SelectItem>
@@ -518,7 +596,7 @@ export default function NewProjectPage() {
                   {/* Handling Outlier Value */}
                   <div className="space-y-2">
                     <Label htmlFor="outlier_handling" className="text-sm font-semibold">
-                      Handling Outlier Value <span className="text-red-500">*</span>
+                      Remove Outliers <span className="text-red-500">*</span>
                     </Label>
                     <Select
                       value={preprocessingData.outlier_handling}
@@ -528,13 +606,13 @@ export default function NewProjectPage() {
                         <SelectValue placeholder="Select method" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="NONE">NONE</SelectItem>
-                        <SelectItem value="REMOVE">REMOVE</SelectItem>
-                        <SelectItem value="MEAN">MEAN</SelectItem>
-                        <SelectItem value="MEDIAN">MEDIAN</SelectItem>
-                        <SelectItem value="MAX">MAX</SelectItem>
-                        <SelectItem value="MIN">MIN</SelectItem>
-                        <SelectItem value="NEIGHBOR_VALUE">NEIGHBOR_VALUE</SelectItem>
+                        <SelectItem value="true">Yes</SelectItem>
+                        <SelectItem value="false">No</SelectItem>
+                        {/* <SelectItem value="MEAN">MEAN</SelectItem> */}
+                        {/* <SelectItem value="MEDIAN">MEDIAN</SelectItem> */}
+                        {/* <SelectItem value="MAX">MAX</SelectItem> */}
+                        {/* <SelectItem value="MIN">MIN</SelectItem> */}
+                        {/* <SelectItem value="NEIGHBOR_VALUE">NEIGHBOR_VALUE</SelectItem> */}
                       </SelectContent>
                     </Select>
                   </div>
@@ -542,23 +620,23 @@ export default function NewProjectPage() {
                   {/* Interval Finetune */}
                   <div className="space-y-2">
                     <Label htmlFor="interval_finetune" className="text-sm font-semibold">
-                      Interval Finetune <span className="text-red-500">*</span>
+                      Interval Finetune (Day)<span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="interval_finetune"
                       type="number"
-                      min="0"
-                      max="30"
+                      min="1"
+                      max="31"
                       value={preprocessingData.interval_finetune}
                       onChange={(e) => setPreprocessingData(prev => ({ 
                         ...prev, 
                         interval_finetune: e.target.value === '' ? '' : Math.max(0, Math.min(30, parseInt(e.target.value) || 0))
                       }))}
-                      placeholder="0 - 30"
+                      placeholder="1 - 31"
                       className="rounded-xl"
                     />
                     <p className="text-xs text-gray-500">
-                      Value must be between 0 and 30
+                      Value must be between 1 and 31
                     </p>
                   </div>
 
@@ -570,18 +648,18 @@ export default function NewProjectPage() {
                     <Input
                       id="retention"
                       type="number"
-                      min="0"
-                      max="30"
+                      min="1"
+                      max="7"
                       value={preprocessingData.retention}
                       onChange={(e) => setPreprocessingData(prev => ({ 
                         ...prev, 
                         retention: e.target.value === '' ? '' : Math.max(0, Math.min(30, parseInt(e.target.value) || 0))
                       }))}
-                      placeholder="0 - 30"
+                      placeholder="1 - 7"
                       className="rounded-xl"
                     />
                     <p className="text-xs text-gray-500">
-                      Value must be between 0 and 30
+                      Value must be between 1 and 7
                     </p>
                   </div>
 

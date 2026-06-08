@@ -33,7 +33,7 @@ import {
   Database, Target,
   TrendingUp, StopCircle,
   RefreshCw, Download,
-  CheckCircle2, List, Clock,ChevronsUp,BrainCog,
+  CheckCircle2, List, Clock,ChevronsUp,BrainCog,SquareDashedKanban,
   Play
 } from 'lucide-react'
 import { getProjectDetail, mockLogs } from '@/lib/mock-data'
@@ -180,8 +180,9 @@ export default function ProjectDetailPage() {
             Rebuild
           </Button>
           <Button className="bg-[#206bc4] hover:bg-[#1a5ba3]" disabled={!isCompleted}>
-            <ChevronsUp className="mr-2 h-4 w-4" />
-            Finetune
+            {/* <ChevronsUp className="mr-2 h-4 w-4" /> */}
+            <SquareDashedKanban className= "mr-2 h-4 w-4"/>
+            Retrain
           </Button>
         </div>
       </div>
@@ -450,6 +451,14 @@ export default function ProjectDetailPage() {
                     {dataset.meta?.n_cols ? dataset.meta.n_cols : "-"}
                   </p>
                 </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    Number of Models
+                  </p>
+                  <p className="text-lg font-semibold text-gray-900 dark:text-white mt-1">
+                    {dataset.n_models}
+                  </p>
+                </div>
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
@@ -551,6 +560,81 @@ export default function ProjectDetailPage() {
                 </div>
               </div>
 
+            </CardContent>
+          </Card>
+
+          {/* Preprocessing Information */}
+          <Card className="shadow-sm border-gray-200 dark:border-gray-800">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl font-semibold flex items-center gap-2">
+                <RefreshCw className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                Preprocessing Configuration
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {dataset.preprocessing ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      Missing Value Handling
+                    </p>
+                    <Badge variant="outline" className="text-sm">
+                      {dataset.preprocessing.missing_handling || '-'}
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      Outlier Handling
+                    </p>
+                    <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                      {dataset.preprocessing.outlier_handling ? 'True' : 'False'}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      Scale
+                    </p>
+                    <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                      {dataset.preprocessing.scale ? 'True' : 'False'}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      Dimensionality Reduction
+                    </p>
+                    <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                      {dataset.preprocessing.dim_reduce ? 'True' : 'False'}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      Interval Finetune
+                    </p>
+                    <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                      {dataset.preprocessing.interval_finetune}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                      Retention
+                    </p>
+                    <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                      {dataset.preprocessing.retention}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center py-8">
+                  <p className="text-gray-500 italic">
+                    No preprocessing configuration available
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

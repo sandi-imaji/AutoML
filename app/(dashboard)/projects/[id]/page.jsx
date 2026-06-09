@@ -728,7 +728,7 @@ export default function ProjectDetailPage() {
         </TabsContent>
 
         <TabsContent value="logs">
-          <LogViewer datasetName={dataset.names} height='500px' />
+          <LogViewer datasetName={dataset.names} height='700px' />
         </TabsContent>
 
         <TabsContent value="predictions">

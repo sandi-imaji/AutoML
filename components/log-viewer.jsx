@@ -20,7 +20,7 @@ const LOG_COLORS = {
   CRITICAL: { bg: 'bg-purple-500/20', text: 'text-purple-400', border: 'border-purple-500/50', badge: 'bg-purple-500 text-white' },
 }
 
-export function LogViewer({ datasetName, title = 'System Logs', height = '600px' }) {
+export function LogViewer({ datasetName, title = 'System Logs', height = '800px' }) {
   const [logs, setLogs] = useState([])
   const [isPaused, setIsPaused] = useState(false)
   const [filter, setFilter] = useState('all')
@@ -182,18 +182,18 @@ export function LogViewer({ datasetName, title = 'System Logs', height = '600px'
   }
 
   return (
-    <Card className="w-full shadow-2xl flex flex-col border border-zinc-800 bg-zinc-950" style={{ height }}>
+    <Card className="w-full shadow-2xl flex flex-col border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-950" style={{ height }}>
       {/* Header */}
-      <CardHeader className="flex-none border-b border-zinc-800 bg-zinc-900/50">
+      <CardHeader className="flex-none border-b border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900/50">
         <div className="flex flex-col gap-4">
           {/* Title row */}
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg font-semibold flex items-center gap-3">
-              <Terminal className="h-5 w-5 text-zinc-400" />
+            <CardTitle className="text-lg font-semibold flex items-center gap-3 text-gray-800 dark:text-zinc-100">
+              <Terminal className="h-5 w-5 text-gray-500 dark:text-zinc-400" />
               {title}
               <div className="flex items-center gap-2">
                 <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
-                <span className="text-sm font-normal text-zinc-400">
+                <span className="text-sm font-normal text-gray-500 dark:text-zinc-400">
                   {isConnected ? 'Live' : 'Disconnected'}
                 </span>
               </div>
@@ -229,32 +229,32 @@ export function LogViewer({ datasetName, title = 'System Logs', height = '600px'
           </div>
 
           {/* Stats row */}
-          <div className="flex items-center gap-4 text-sm">
+            <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-2">
-              <Activity className="h-4 w-4 text-zinc-500" />
-              <span className="text-zinc-400">Total: <span className="text-zinc-200 font-medium">{stats.total}</span></span>
+              <Activity className="h-4 w-4 text-gray-500 dark:text-zinc-500" />
+              <span className="text-gray-600 dark:text-zinc-400">Total: <span className="text-gray-800 dark:text-zinc-200 font-medium">{stats.total}</span></span>
             </div>
-            <div className="h-4 w-px bg-zinc-700" />
-            <span className="text-red-400">Errors: {stats.error}</span>
-            <span className="text-yellow-400">Warnings: {stats.warning}</span>
-            <span className="text-blue-400">Info: {stats.info}</span>
+            <div className="h-4 w-px bg-gray-300 dark:bg-zinc-700" />
+            <span className="text-red-600 dark:text-red-400">Errors: {stats.error}</span>
+            <span className="text-yellow-600 dark:text-yellow-400">Warnings: {stats.warning}</span>
+            <span className="text-blue-600 dark:text-blue-400">Info: {stats.info}</span>
           </div>
 
           {/* Search and Filter row */}
           <div className="flex items-center gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-zinc-500" />
               <Input
                 placeholder="Search logs..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-zinc-900 border-zinc-700 text-zinc-200 placeholder:text-zinc-600"
+                className="pl-10 bg-white dark:bg-zinc-900 border-gray-300 dark:border-zinc-700 text-gray-800 dark:text-zinc-200 placeholder:text-gray-400 dark:placeholder:text-zinc-600"
               />
             </div>
             
             <div className="flex items-center gap-1">
               {['all', 'ERROR', 'WARNING', 'INFO'].map((f) => (
-                <Button
+                  <Button
                   key={f}
                   size="sm"
                   variant={filter === f ? 'default' : 'outline'}
@@ -262,9 +262,9 @@ export function LogViewer({ datasetName, title = 'System Logs', height = '600px'
                   className={`capitalize ${
                     filter === f
                       ? f === 'all' 
-                        ? 'bg-zinc-700 text-white'
-                        : LOG_COLORS[f]?.badge || 'bg-zinc-700'
-                      : 'border-zinc-700 text-zinc-400 hover:text-zinc-200'
+                        ? 'bg-gray-700 text-white'
+                        : LOG_COLORS[f]?.badge || 'bg-gray-700'
+                      : 'border-gray-300 dark:border-zinc-700 text-gray-600 dark:text-zinc-400 hover:text-gray-800 hover:bg-gray-100 dark:hover:text-zinc-200'
                   }`}
                 >
                   {f}
@@ -276,7 +276,7 @@ export function LogViewer({ datasetName, title = 'System Logs', height = '600px'
               size="sm"
               variant={showMetadata ? 'default' : 'outline'}
               onClick={() => setShowMetadata(!showMetadata)}
-              className={showMetadata ? 'bg-zinc-700' : 'border-zinc-700 text-zinc-400'}
+              className={showMetadata ? 'bg-gray-700 text-white' : 'border-gray-300 dark:border-zinc-700 text-gray-600 dark:text-zinc-400'}
             >
               Metadata
             </Button>
@@ -285,16 +285,16 @@ export function LogViewer({ datasetName, title = 'System Logs', height = '600px'
       </CardHeader>
 
       {/* Body */}
-      <CardContent className="flex-1 p-0 bg-black overflow-hidden">
+      <CardContent className="flex-1 p-0 bg-gray-50 dark:bg-black overflow-hidden">
         <ScrollArea className="h-full">
           <div ref={viewportRef} className="p-4 font-mono text-sm">
             {filteredLogs.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-zinc-600">
+              <div className="flex flex-col items-center justify-center py-20 text-gray-500 dark:text-zinc-600">
                 <Terminal className="h-12 w-12 mb-4 opacity-50" />
-                <p className="text-lg">
+                <p className="text-lg text-gray-600 dark:text-zinc-400">
                   {isConnected ? 'Waiting for logs...' : 'Disconnected from server'}
                 </p>
-                <p className="text-sm mt-2">
+                <p className="text-sm mt-2 text-gray-500 dark:text-zinc-500">
                   {logs.length === 0 
                     ? 'Logs will appear here when available'
                     : 'No logs match current filters'
@@ -310,10 +310,10 @@ export function LogViewer({ datasetName, title = 'System Logs', height = '600px'
                   return (
                     <div
                       key={log.id}
-                      className={`group flex items-start gap-3 px-3 py-2 -mx-3 rounded-lg border-l-2 transition-all hover:bg-zinc-900/50 ${colors.border}`}
+                      className={`group flex items-start gap-3 px-3 py-2 -mx-3 rounded-lg border-l-2 transition-all hover:bg-gray-100 dark:hover:bg-zinc-900/50 ${colors.border}`}
                     >
                       {/* Timestamp */}
-                      <span className="text-zinc-500 text-xs shrink-0 w-36 pt-0.5">
+                      <span className="text-gray-500 dark:text-zinc-500 text-xs shrink-0 w-36 pt-0.5">
                         {log.timestamp}
                       </span>
 
@@ -324,7 +324,7 @@ export function LogViewer({ datasetName, title = 'System Logs', height = '600px'
 
                       {/* Source (module:function:line) */}
                       {source && (
-                        <span className="text-cyan-500/70 text-xs shrink-0 w-48 truncate pt-0.5" title={source}>
+                        <span className="text-cyan-600 dark:text-cyan-500/70 text-xs shrink-0 w-48 truncate pt-0.5" title={source}>
                           {source}
                         </span>
                       )}

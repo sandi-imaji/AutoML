@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
-import { getConfig } from '@/lib/api'
+import { getConfig, updateConfig } from '@/lib/api'
 import { Copy, Eye, EyeOff } from 'lucide-react'
 
 // Komponen Password Input dengan Copy Button
@@ -68,6 +68,8 @@ export default function SettingsPage() {
   })
   const [loading, setLoading] = useState(true)
 
+  const [saving, setSaving] = useState(false)
+
   // Fetch config dari backend saat mount
   useEffect(() => {
     const fetchConfig = async () => {
@@ -101,9 +103,29 @@ export default function SettingsPage() {
     }))
   }
 
-  const handleSave = () => {
-    // TODO: Implement save ke backend jika diperlukan
-    toast.success('Settings saved successfully')
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      // Prepare payload sesuai format yang diminta
+      const payload = {
+        sl_host: config.sl_host,
+        sl_key: config.sl_key,
+        sl_token: config.sl_token,
+        sl_retry: config.sl_retry,
+        sl_timeout: config.sl_timeout,
+        influxdb_token: config.influxdb_token,
+        influxdb_org: config.influxdb_org,
+        influxdb_bucket: config.influxdb_bucket,
+      }
+
+      await updateConfig(payload)
+      toast.success('Settings saved successfully')
+    } catch (error) {
+      toast.error('Failed to save settings')
+      console.error('Error saving config:', error)
+    } finally {
+      setSaving(false)
+    }
   }
 
   if (loading) {
@@ -221,8 +243,12 @@ export default function SettingsPage() {
       </Card>
 
       <div className="flex justify-end">
-        <Button onClick={handleSave} className="bg-[#206bc4] hover:bg-[#1a5ba3]">
-          Save Changes
+        <Button 
+          onClick={handleSave} 
+          disabled={saving}
+          className="bg-[#206bc4] hover:bg-[#1a5ba3]"
+        >
+          {saving ? 'Saving...' : 'Save Changes'}
         </Button>
       </div>
     </div>

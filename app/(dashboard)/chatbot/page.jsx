@@ -39,6 +39,8 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 // Mock initial messages for demo
 const initialMessages = [
@@ -68,13 +70,6 @@ function TypingIndicator() {
 function MessageBubble({ message, onCopy, onRegenerate, copiedId }) {
     const isUser = message.role === "user";
     const isCopied = copiedId === message.id;
-
-    // Simple markdown-like formatting
-    const formatContent = (content) => {
-        return content
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\n/g, '<br/>');
-    };
 
     return (
         <div
@@ -113,21 +108,66 @@ function MessageBubble({ message, onCopy, onRegenerate, copiedId }) {
                         : "bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700/80 rounded-tl-md"
                         }`}
                 >
-                    {/* Message text with formatting */}
+                    {/* Message text with markdown support */}
                     <div
-                        className={`text-sm leading-relaxed ${!isUser && "text-gray-700 dark:text-gray-200"}`}
+                        className={`text-sm leading-relaxed prose prose-sm max-w-none ${
+                            isUser 
+                                ? "prose-invert text-white [&_*]:text-white [&_strong]:text-white [&_a]:text-blue-200 [&_a:hover]:text-blue-100 [&_code]:text-white [&_code]:bg-white/20 [&_pre]:bg-white/10 [&_pre]:text-white [&_blockquote]:border-white/30 [&_blockquote]:text-white/90 [&_table]:border-white/30 [&_th]:border-white/30 [&_td]:border-white/30" 
+                                : "prose-gray dark:prose-invert [&_a]:text-blue-600 [&_a:hover]:text-blue-500 dark:[&_a]:text-blue-400 dark:[&_a:hover]:text-blue-300"
+                        }`}
                     >
-                        {message.content.split('\n').map((line, idx) => (
-                            <span key={idx}>
-                                {line.split(/(\*\*.*?\*\*)/).map((part, partIdx) => {
-                                    if (part.startsWith('**') && part.endsWith('**')) {
-                                        return <strong key={partIdx}>{part.slice(2, -2)}</strong>;
-                                    }
-                                    return part;
-                                })}
-                                {idx < message.content.split('\n').length - 1 && <br />}
-                            </span>
-                        ))}
+                        <ReactMarkdown 
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                                pre: ({ node, ...props }) => (
+                                    <div className="overflow-auto rounded-lg my-2 p-3 bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
+                                        <pre {...props} className="m-0 p-0 bg-transparent border-0 text-xs" />
+                                    </div>
+                                ),
+                                code: ({ node, inline, ...props }) => (
+                                    inline 
+                                        ? <code {...props} className="px-1.5 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 text-pink-600 dark:text-pink-400 text-xs font-mono" />
+                                        : <code {...props} className="text-xs font-mono text-gray-800 dark:text-gray-200" />
+                                ),
+                                table: ({ node, ...props }) => (
+                                    <div className="overflow-auto my-2">
+                                        <table {...props} className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-xs" />
+                                    </div>
+                                ),
+                                th: ({ node, ...props }) => (
+                                    <th {...props} className="px-3 py-2 text-left font-semibold text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700" />
+                                ),
+                                td: ({ node, ...props }) => (
+                                    <td {...props} className="px-3 py-2 text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700" />
+                                ),
+                                blockquote: ({ node, ...props }) => (
+                                    <blockquote {...props} className="border-l-4 border-gray-300 dark:border-gray-600 pl-4 my-2 italic text-gray-600 dark:text-gray-400" />
+                                ),
+                                ul: ({ node, ...props }) => (
+                                    <ul {...props} className="list-disc list-inside my-2 space-y-1" />
+                                ),
+                                ol: ({ node, ...props }) => (
+                                    <ol {...props} className="list-decimal list-inside my-2 space-y-1" />
+                                ),
+                                li: ({ node, ...props }) => (
+                                    <li {...props} className="ml-1" />
+                                ),
+                                h1: ({ node, ...props }) => (
+                                    <h1 {...props} className="text-xl font-bold my-3 text-gray-900 dark:text-gray-100" />
+                                ),
+                                h2: ({ node, ...props }) => (
+                                    <h2 {...props} className="text-lg font-bold my-2.5 text-gray-900 dark:text-gray-100" />
+                                ),
+                                h3: ({ node, ...props }) => (
+                                    <h3 {...props} className="text-base font-bold my-2 text-gray-900 dark:text-gray-100" />
+                                ),
+                                hr: ({ node, ...props }) => (
+                                    <hr {...props} className="my-3 border-gray-200 dark:border-gray-700" />
+                                ),
+                            }}
+                        >
+                            {message.content}
+                        </ReactMarkdown>
                     </div>
 
                     {/* Action buttons - visible on hover for AI messages */}

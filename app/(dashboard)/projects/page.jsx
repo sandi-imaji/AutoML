@@ -317,7 +317,7 @@ export default function ProjectsPage() {
           Yuk mulai bikin project AutoML pertamamu!
         </p>
 
-        <Button asChild size="lg" className="btn-gradient">
+        <Button asChild size="lg" className="liquid-glass-btn liquid-glass-btn-blue text-white px-8 py-3 font-semibold tracking-wide text-base">
           <Link href="/projects/new">
             <Plus className="mr-2 h-5 w-5" /> Buat Task Baru
           </Link>
@@ -337,7 +337,7 @@ export default function ProjectsPage() {
             Manage your AutoML projects ({datasets.length})
           </p>
         </div>
-        <Button asChild className="btn-gradient text-white rounded-xl">
+        <Button asChild className="liquid-glass-btn liquid-glass-btn-blue text-white px-6 py-2.5 font-medium tracking-wide">
           <Link href="/projects/new">
             <Plus className="mr-2 h-4 w-4" />
             New Task

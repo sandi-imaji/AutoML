@@ -80,9 +80,9 @@ export function PremiumHeader() {
               <span className="sr-only">Toggle theme</span>
             </Button>
 
-            {/* User Initials */}
-            <div className="hidden md:flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white font-bold text-sm shadow-lg hover:shadow-xl transition-all hover:scale-105 cursor-pointer border-2 border-white dark:border-gray-900">
-              AD
+            {/* User Avatar - Apple Liquid Glass */}
+            <div className="hidden md:flex h-9 w-9 items-center justify-center rounded-xl liquid-glass-avatar cursor-pointer">
+              <span className="text-xs font-bold text-blue-600 dark:text-blue-400 tracking-wide">IM</span>
             </div>
 
             {/* Mobile Menu Toggle */}
@@ -131,12 +131,12 @@ export function PremiumHeader() {
                   {/* Mobile Footer */}
                   <div className="p-6 border-t border-gray-200 dark:border-gray-800">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white font-bold text-sm flex items-center justify-center shadow-lg">
-                        AD
+                      <div className="h-9 w-9 rounded-xl liquid-glass-avatar flex items-center justify-center">
+                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400 tracking-wide">IM</span>
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm font-semibold text-gray-900 dark:text-white">Admin User</p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">admin@neuraflow.ai</p>
+                        <p className="text-sm font-semibold text-gray-900 dark:text-white">Imaji User</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">imaji@smartai.ai</p>
                       </div>
                     </div>
                   </div>

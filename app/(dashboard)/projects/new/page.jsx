@@ -140,23 +140,15 @@ export default function NewProjectPage() {
     // Check if user manually selected all tags
     if (selectedTags.length === 0) {
       setIsAllSelected(false)
-    } else if (isAllSelected && selectedTags.length !== allAvailableTags.length) {
-      // User removed some tags after selecting all
-      setIsAllSelected(false)
     }
-    
+
     setFormData(prev => ({ ...prev, features: selectedTags || [] }))
   }
 
   const handleTargetChange = (selectedTag) => {
     // Remove target from features if exists
     const newFeatures = formData.features.filter(f => f.row_id !== selectedTag?.row_id)
-    
-    // If user manually removes tags after selecting all, update isAllSelected
-    if (isAllSelected && newFeatures.length !== allAvailableTags.length) {
-      setIsAllSelected(false)
-    }
-    
+
     setFormData(prev => ({
       ...prev,
       target: selectedTag,

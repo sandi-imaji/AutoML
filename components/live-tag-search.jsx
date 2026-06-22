@@ -48,10 +48,9 @@ export function LiveTagSearch({
   useLayoutEffect(() => {
     if (isOpen && containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect()
-      const scrollY = window.scrollY || window.pageYOffset
       setDropdownPosition({
-        top: rect.bottom + scrollY + 4,
-        left: rect.left + window.scrollX,
+        top: rect.bottom + 4,
+        left: rect.left,
         width: rect.width,
       })
     }
@@ -62,10 +61,9 @@ export function LiveTagSearch({
     const handlePositionUpdate = () => {
       if (isOpen && containerRef.current) {
         const rect = containerRef.current.getBoundingClientRect()
-        const scrollY = window.scrollY || window.pageYOffset
         setDropdownPosition({
-          top: rect.bottom + scrollY + 4,
-          left: rect.left + window.scrollX,
+          top: rect.bottom + 4,
+          left: rect.left,
           width: rect.width,
         })
       }
